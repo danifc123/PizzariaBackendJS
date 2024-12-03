@@ -11,6 +11,7 @@ app.use(express.json());
 app.use("/clientes", clienteRoutes);
 app.use("/categorias", categoryRoutes);
 app.use("/configuracoes", configuracaoRoutes);
+app.use("/api/cupons", cuponsRouter);
 
 // Inicializa o banco de dados
 AppDataSource.initialize()
