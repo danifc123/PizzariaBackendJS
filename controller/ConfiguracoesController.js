@@ -1,11 +1,15 @@
 const ConfiguracaoService = require("../models/Configuracoes");
+const AppDataSource = require("../config/data-source"); // Importar corretamente AppDataSource
 
 const listarConfiguracoes = async (req, res) => {
   try {
-    const configuracoes = await ConfiguracaoService.listarConfiguracoes();
-    res.json(configuracoes);
+    const configuracoesRepository =
+      AppDataSource.getRepository(ConfiguracaoService);
+    const configuracoes = await configuracoesRepository.find();
+    res.status(200).json(configuracoes);
   } catch (error) {
-    res.status(500).json({ error: "Erro ao buscar configurações." });
+    consolem.error("Erro ao buscar configurações:", error);
+    res.status(500).json({ error: "Erro ao buscar configurações" });
   }
 };
 
@@ -15,7 +19,7 @@ const buscarConfiguracaoPorId = async (req, res) => {
     if (!configuracao) {
       return res.status(404).json({ error: "Configuração não encontrada." });
     }
-    res.json(configuracao);
+    res.status(200).json(configuracoes);
   } catch (error) {
     res.status(500).json({ error: "Erro ao buscar configuração." });
   }

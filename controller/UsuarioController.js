@@ -1,10 +1,12 @@
-const UsuarioService = require("../services/UsuarioService");
+const UsuarioService = require("../models/Usuario");
+const AppDataSource = require("../config/data-source"); // Importar corretamente AppDataSource
 
 // Obter todos os usuários
 const listarUsuarios = async (req, res) => {
   try {
-    const usuarios = await UsuarioService.getUsuarios();
-    res.json(usuarios);
+    const usuarioRepository = AppDataSource.getRepository(UsuarioService);
+    const usuarios = await usuarioRepository.find();
+    res.status(200).json(usuarios);
   } catch (error) {
     res.status(500).json({ error: "Erro ao buscar usuários." });
   }
@@ -24,7 +26,7 @@ const adicionarUsuario = async (req, res) => {
 const buscarUsuarioPorId = async (req, res) => {
   try {
     const usuario = await UsuarioService.getUsuarioById(req.params.id);
-    res.json(usuario);
+    res.status(200).json(usuarios);
   } catch (error) {
     res.status(404).json({ error: "Usuário não encontrado." });
   }

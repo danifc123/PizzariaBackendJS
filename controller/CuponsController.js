@@ -1,10 +1,13 @@
-const CupomService = require("../services/CupomService");
+const CupomService = require("../models/Cupom");
+const AppDataSource = require("../config/data-source"); // Importar corretamente AppDataSource
 
 const getAllCupons = async (req, res) => {
   try {
-    const cupons = await CupomService.getAll();
-    res.json(cupons);
+    const cupomRepository = AppDataSource.getRepository(CupomService);
+    const cupons = await cupomRepository.find();
+    res.status(200).json(cupons);
   } catch (error) {
+    console.error("Erro ao buscar cupons:", error);
     res.status(500).json({ error: "Erro ao buscar cupons." });
   }
 };
@@ -13,7 +16,7 @@ const getCupomById = async (req, res) => {
   try {
     const cupom = await CupomService.getById(req.params.id);
     if (!cupom) return res.status(404).json({ error: "Cupom não encontrado." });
-    res.json(cupom);
+    res.status(200).json(cupons);
   } catch (error) {
     res.status(500).json({ error: "Erro ao buscar cupom." });
   }

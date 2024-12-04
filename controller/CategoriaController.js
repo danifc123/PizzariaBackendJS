@@ -1,4 +1,5 @@
 const Category = require("../models/Categoria");
+const AppDataSource = require("../config/data-source"); // Importar corretamente AppDataSource
 
 const createCategory = async (req, res) => {
   try {
@@ -21,7 +22,8 @@ const getAllCategories = async (req, res) => {
 
     res.status(200).json(categories);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching categories", error });
+    console.error("Error fetching categories:", error);
+    res.status(500).json({ error: "Error fetching categories" });
   }
 };
 

@@ -1,4 +1,4 @@
-const { AppDataSource } = require("../config/data-source");
+const AppDataSource = require("../config/data-source"); // Importar corretamente AppDataSource
 const Subcategoria = require("../models/Subcategorias");
 
 const getAllSubcategorias = async (req, res) => {

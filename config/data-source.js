@@ -8,7 +8,7 @@ const Pedido = require("../models/Pedido");
 const Produto = require("../models/Produto");
 const Usuario = require("../models/Usuario");
 
-const dataSource = new DataSource({
+const AppDataSource = new DataSource({
   type: "postgres",
   host: "localhost",
   port: 5433,
@@ -31,4 +31,4 @@ const dataSource = new DataSource({
   subscribers: [],
 });
 
-module.exports = dataSource;
+module.exports = AppDataSource;

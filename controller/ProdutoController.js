@@ -1,4 +1,4 @@
-const { AppDataSource } = require("../config/data-source");
+const AppDataSource = require("../config/data-source"); // Importar corretamente AppDataSource
 const Produto = require("../models/Produto");
 
 const getAllProdutos = async (req, res) => {

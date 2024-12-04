@@ -1,7 +1,5 @@
 const express = require("express");
-const DataSource = require("./config/data-source");
-const swaggerJSDoc = require("swagger-jsdoc");
-const swaggerUi = require("swagger-ui-express");
+const AppDataSource = require("./config/data-source");
 
 const CategoriaController = require("./controller/CategoriaController");
 const configController = require("./controller/ConfiguracoesController");
@@ -63,7 +61,7 @@ app.put("/usuarios/:id", usuarioController.atualizarUsuario);
 app.delete("/usuarios/:id", usuarioController.excluirUsuario);
 
 // Inicializa o banco de dados
-DataSource.initialize()
+AppDataSource.initialize()
   .then(() => {
     console.log("Conexão com o banco de dados estabelecida!");
     app.listen(3000, () =>
