@@ -1,65 +1,59 @@
-const express = require("express");
-const router = express.Router();
-const { Usuario } = require("../models");
+const UsuarioService = require("../services/UsuarioService");
 
 // Obter todos os usuários
-router.get("/", async (req, res) => {
+const listarUsuarios = async (req, res) => {
   try {
-    const usuarios = await Usuario.findAll();
+    const usuarios = await UsuarioService.getUsuarios();
     res.json(usuarios);
   } catch (error) {
     res.status(500).json({ error: "Erro ao buscar usuários." });
   }
-});
+};
 
 // Adicionar um novo usuário
-router.post("/", async (req, res) => {
+const adicionarUsuario = async (req, res) => {
   try {
-    const usuario = await Usuario.create(req.body);
+    const usuario = await UsuarioService.addUsuario(req.body);
     res.status(201).json(usuario);
   } catch (error) {
     res.status(500).json({ error: "Erro ao adicionar usuário." });
   }
-});
+};
 
 // Buscar usuário por ID
-router.get("/:id", async (req, res) => {
+const buscarUsuarioPorId = async (req, res) => {
   try {
-    const usuario = await Usuario.findByPk(req.params.id);
-    if (!usuario)
-      return res.status(404).json({ error: "Usuário não encontrado." });
+    const usuario = await UsuarioService.getUsuarioById(req.params.id);
     res.json(usuario);
   } catch (error) {
-    res.status(500).json({ error: "Erro ao buscar usuário." });
+    res.status(404).json({ error: "Usuário não encontrado." });
   }
-});
+};
 
 // Atualizar um usuário
-router.put("/:id", async (req, res) => {
+const atualizarUsuario = async (req, res) => {
   try {
-    const usuario = await Usuario.findByPk(req.params.id);
-    if (!usuario)
-      return res.status(404).json({ error: "Usuário não encontrado." });
-
-    await usuario.update(req.body);
+    await UsuarioService.updateUsuario(req.params.id, req.body);
     res.status(204).send();
   } catch (error) {
-    res.status(500).json({ error: "Erro ao atualizar usuário." });
+    res.status(404).json({ error: "Usuário não encontrado." });
   }
-});
+};
 
 // Deletar um usuário
-router.delete("/:id", async (req, res) => {
+const excluirUsuario = async (req, res) => {
   try {
-    const usuario = await Usuario.findByPk(req.params.id);
-    if (!usuario)
-      return res.status(404).json({ error: "Usuário não encontrado." });
-
-    await usuario.destroy();
+    await UsuarioService.deleteUsuario(req.params.id);
     res.status(204).send();
   } catch (error) {
-    res.status(500).json({ error: "Erro ao deletar usuário." });
+    res.status(404).json({ error: "Usuário não encontrado." });
   }
-});
+};
 
-module.exports = router;
+module.exports = {
+  listarUsuarios,
+  adicionarUsuario,
+  buscarUsuarioPorId,
+  atualizarUsuario,
+  excluirUsuario,
+};

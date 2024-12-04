@@ -1,32 +1,31 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/database");
+const { EntitySchema } = require("typeorm");
 
-const Pedido = sequelize.define("Pedido", {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  clienteId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: "Clientes", // Nome da tabela relacionada
-      key: "id",
+module.exports = new EntitySchema({
+  name: "Pedido",
+  tableName: "pedidos",
+  columns: {
+    id: {
+      type: "int",
+      primary: true,
+      generated: true,
+    },
+    clienteId: {
+      type: "int",
+      nullable: false,
+    },
+    produtos: {
+      type: "json",
+      nullable: false,
+    },
+    total: {
+      type: "decimal",
+      precision: 10,
+      scale: 2,
+      nullable: false,
+    },
+    dataPedido: {
+      type: "date",
+      nullable: false,
     },
   },
-  produtos: {
-    type: DataTypes.JSON, // Armazena lista de IDs de produtos
-    allowNull: false,
-  },
-  total: {
-    type: DataTypes.DECIMAL(10, 2),
-    allowNull: false,
-  },
-  dataPedido: {
-    type: DataTypes.DATE,
-    allowNull: false,
-  },
 });
-
-module.exports = Pedido;

@@ -1,24 +1,26 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/database");
+const { EntitySchema } = require("typeorm");
 
-const Subcategoria = sequelize.define("Subcategoria", {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
+module.exports = new EntitySchema({
+  name: "Subcategoria",
+  tableName: "subcategorias",
+  columns: {
+    id: {
+      type: "int",
+      primary: true,
+      generated: true,
+    },
+    nome: {
+      type: "varchar",
+      nullable: false,
+    },
   },
-  nome: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  categoriaId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: "Categorias",
-      key: "id",
+  relations: {
+    categoria: {
+      type: "many-to-one",
+      target: "Categoria",
+      joinColumn: true,
+      onDelete: "CASCADE", // Deleta subcategorias se a categoria for excluída
+      nullable: false,
     },
   },
 });
-
-module.exports = Subcategoria;

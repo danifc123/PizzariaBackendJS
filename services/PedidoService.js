@@ -1,32 +1,43 @@
-const { Pedido } = require("../models");
+const { getRepository } = require("typeorm");
+const Pedido = require("../entities/Pedido");
 
 class PedidoService {
   async getAllPedidos() {
-    return await Pedido.findAll();
+    const pedidoRepository = getRepository(Pedido);
+    return await pedidoRepository.find();
   }
 
   async getPedidoById(id) {
-    return await Pedido.findByPk(id);
+    const pedidoRepository = getRepository(Pedido);
+    return await pedidoRepository.findOne(id);
   }
 
   async addPedido(pedidoData) {
-    return await Pedido.create(pedidoData);
+    const pedidoRepository = getRepository(Pedido);
+    const novoPedido = pedidoRepository.create(pedidoData);
+    return await pedidoRepository.save(novoPedido);
   }
 
   async updatePedido(id, pedidoAtualizado) {
-    const pedido = await Pedido.findByPk(id);
+    const pedidoRepository = getRepository(Pedido);
+    const pedido = await pedidoRepository.findOne(id);
     if (!pedido) throw new Error("Pedido não encontrado");
-    return await pedido.update(pedidoAtualizado);
+
+    Object.assign(pedido, pedidoAtualizado);
+    return await pedidoRepository.save(pedido);
   }
 
   async deletePedido(id) {
-    const pedido = await Pedido.findByPk(id);
+    const pedidoRepository = getRepository(Pedido);
+    const pedido = await pedidoRepository.findOne(id);
     if (!pedido) throw new Error("Pedido não encontrado");
-    return await pedido.destroy();
+
+    return await pedidoRepository.remove(pedido);
   }
 
   async atualizarProdutoDoPedido(pedidoId, produtoAntigoId, produtoNovoId) {
-    const pedido = await Pedido.findByPk(pedidoId);
+    const pedidoRepository = getRepository(Pedido);
+    const pedido = await pedidoRepository.findOne(pedidoId);
     if (!pedido) throw new Error("Pedido não encontrado");
 
     const produtos = pedido.produtos || [];
@@ -34,7 +45,8 @@ class PedidoService {
     if (index === -1) throw new Error("Produto não encontrado no pedido");
 
     produtos[index] = produtoNovoId;
-    return await pedido.update({ produtos });
+    pedido.produtos = produtos;
+    return await pedidoRepository.save(pedido);
   }
 }
 

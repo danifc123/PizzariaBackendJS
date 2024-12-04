@@ -1,28 +1,45 @@
-const { Subcategoria } = require("../models");
+const { getRepository } = require("typeorm");
+const Subcategoria = require("../models/Subcategorias");
 
 class SubcategoriaService {
+  // Buscar todas as subcategorias
   async getAll() {
-    return await Subcategoria.findAll();
+    const subcategoriaRepository = getRepository(Subcategoria);
+    return await subcategoriaRepository.find();
   }
 
+  // Buscar subcategoria por ID
   async getById(id) {
-    return await Subcategoria.findByPk(id);
+    const subcategoriaRepository = getRepository(Subcategoria);
+    const subcategoria = await subcategoriaRepository.findOne(id);
+    if (!subcategoria) throw new Error("Subcategoria não encontrada");
+    return subcategoria;
   }
 
+  // Adicionar nova subcategoria
   async add(subcategoriaData) {
-    return await Subcategoria.create(subcategoriaData);
+    const subcategoriaRepository = getRepository(Subcategoria);
+    const novaSubcategoria = subcategoriaRepository.create(subcategoriaData);
+    return await subcategoriaRepository.save(novaSubcategoria);
   }
 
+  // Atualizar subcategoria existente
   async update(id, subcategoriaAtualizada) {
-    const subcategoria = await Subcategoria.findByPk(id);
+    const subcategoriaRepository = getRepository(Subcategoria);
+    const subcategoria = await subcategoriaRepository.findOne(id);
     if (!subcategoria) throw new Error("Subcategoria não encontrada");
-    return await subcategoria.update(subcategoriaAtualizada);
+
+    Object.assign(subcategoria, subcategoriaAtualizada);
+    return await subcategoriaRepository.save(subcategoria);
   }
 
+  // Deletar subcategoria
   async delete(id) {
-    const subcategoria = await Subcategoria.findByPk(id);
+    const subcategoriaRepository = getRepository(Subcategoria);
+    const subcategoria = await subcategoriaRepository.findOne(id);
     if (!subcategoria) throw new Error("Subcategoria não encontrada");
-    return await subcategoria.destroy();
+
+    return await subcategoriaRepository.remove(subcategoria);
   }
 }
 

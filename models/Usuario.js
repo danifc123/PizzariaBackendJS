@@ -1,29 +1,30 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/database");
+const { EntitySchema } = require("typeorm");
 
-const Usuario = sequelize.define("Usuario", {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  nome: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  senha: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  regra: {
-    type: DataTypes.STRING,
-    allowNull: false,
+module.exports = new EntitySchema({
+  name: "Usuario",
+  tableName: "usuarios",
+  columns: {
+    id: {
+      type: "int",
+      primary: true,
+      generated: true,
+    },
+    nome: {
+      type: "varchar",
+      nullable: false,
+    },
+    email: {
+      type: "varchar",
+      nullable: false,
+      unique: true,
+    },
+    senha: {
+      type: "varchar",
+      nullable: false,
+    },
+    regra: {
+      type: "varchar",
+      nullable: false,
+    },
   },
 });
-
-module.exports = Usuario;

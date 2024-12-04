@@ -1,32 +1,39 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/database");
+const { EntitySchema } = require("typeorm");
 
-const Produto = sequelize.define("Produto", {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
+module.exports = new EntitySchema({
+  name: "Produto",
+  tableName: "produtos",
+  columns: {
+    id: {
+      type: "int",
+      primary: true,
+      generated: true,
+    },
+    nome: {
+      type: "varchar",
+      length: 100,
+      nullable: false,
+    },
+    preco: {
+      type: "decimal",
+      precision: 10,
+      scale: 2,
+      nullable: false,
+    },
+    descricao: {
+      type: "text",
+      nullable: true,
+    },
+    subcategoriaId: {
+      type: "int",
+      nullable: false,
+    },
   },
-  nome: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  preco: {
-    type: DataTypes.DECIMAL(10, 2),
-    allowNull: false,
-  },
-  descricao: {
-    type: DataTypes.TEXT,
-    allowNull: true,
-  },
-  subcategoriaId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: "Subcategorias",
-      key: "id",
+  relations: {
+    subcategoria: {
+      target: "Subcategoria",
+      type: "many-to-one",
+      joinColumn: { name: "subcategoriaId" },
     },
   },
 });
-
-module.exports = Produto;

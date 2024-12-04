@@ -1,65 +1,82 @@
-const express = require("express");
-const router = express.Router();
-const { Subcategoria } = require("../models");
+const { AppDataSource } = require("../config/data-source");
+const Subcategoria = require("../models/Subcategorias");
 
-// Obter todas as subcategorias
-router.get("/", async (req, res) => {
+const getAllSubcategorias = async (req, res) => {
   try {
-    const subcategorias = await Subcategoria.findAll();
-    res.json(subcategorias);
+    const subcategoriaRepository = AppDataSource.getRepository(Subcategoria);
+    const subcategorias = await subcategoriaRepository.find();
+    res.status(200).json(subcategorias);
   } catch (error) {
     res.status(500).json({ error: "Erro ao buscar subcategorias." });
   }
-});
+};
 
-// Adicionar uma nova subcategoria
-router.post("/", async (req, res) => {
+const getSubcategoriaById = async (req, res) => {
+  const { id } = req.params;
   try {
-    const subcategoria = await Subcategoria.create(req.body);
-    res.status(201).json(subcategoria);
-  } catch (error) {
-    res.status(500).json({ error: "Erro ao adicionar subcategoria." });
-  }
-});
-
-// Buscar subcategoria por ID
-router.get("/:id", async (req, res) => {
-  try {
-    const subcategoria = await Subcategoria.findByPk(req.params.id);
-    if (!subcategoria)
+    const subcategoriaRepository = AppDataSource.getRepository(Subcategoria);
+    const subcategoria = await subcategoriaRepository.findOneBy({ id });
+    if (!subcategoria) {
       return res.status(404).json({ error: "Subcategoria não encontrada." });
-    res.json(subcategoria);
+    }
+    res.status(200).json(subcategoria);
   } catch (error) {
     res.status(500).json({ error: "Erro ao buscar subcategoria." });
   }
-});
+};
 
-// Atualizar uma subcategoria
-router.put("/:id", async (req, res) => {
+const addSubcategoria = async (req, res) => {
   try {
-    const subcategoria = await Subcategoria.findByPk(req.params.id);
-    if (!subcategoria)
-      return res.status(404).json({ error: "Subcategoria não encontrada." });
+    const subcategoriaRepository = AppDataSource.getRepository(Subcategoria);
+    const { nome, categoriaId } = req.body;
 
-    await subcategoria.update(req.body);
-    res.status(204).send();
+    const novaSubcategoria = subcategoriaRepository.create({
+      nome,
+      categoriaId,
+    });
+    await subcategoriaRepository.save(novaSubcategoria);
+    res.status(201).json(novaSubcategoria);
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao adicionar subcategoria." });
+  }
+};
+
+const updateSubcategoria = async (req, res) => {
+  const { id } = req.params;
+  const { nome, categoriaId } = req.body;
+  try {
+    const subcategoriaRepository = AppDataSource.getRepository(Subcategoria);
+    const subcategoria = await subcategoriaRepository.findOneBy({ id });
+    if (!subcategoria) {
+      return res.status(404).json({ error: "Subcategoria não encontrada." });
+    }
+
+    subcategoriaRepository.merge(subcategoria, { nome, categoriaId });
+    await subcategoriaRepository.save(subcategoria);
+    res.status(200).json(subcategoria);
   } catch (error) {
     res.status(500).json({ error: "Erro ao atualizar subcategoria." });
   }
-});
+};
 
-// Deletar uma subcategoria
-router.delete("/:id", async (req, res) => {
+const deleteSubcategoria = async (req, res) => {
+  const { id } = req.params;
   try {
-    const subcategoria = await Subcategoria.findByPk(req.params.id);
-    if (!subcategoria)
+    const subcategoriaRepository = AppDataSource.getRepository(Subcategoria);
+    const result = await subcategoriaRepository.delete({ id });
+    if (result.affected === 0) {
       return res.status(404).json({ error: "Subcategoria não encontrada." });
-
-    await subcategoria.destroy();
+    }
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ error: "Erro ao deletar subcategoria." });
   }
-});
+};
 
-module.exports = router;
+module.exports = {
+  getAllSubcategorias,
+  getSubcategoriaById,
+  addSubcategoria,
+  updateSubcategoria,
+  deleteSubcategoria,
+};

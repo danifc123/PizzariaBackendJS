@@ -1,0 +1,25 @@
+{
+  "type": "postgres",
+  "host": "localhost",
+  "port": 5433,
+  "username": "postgres",
+  "password": "fariadocarmo123",
+  "database": "pizzariabackendjs ",
+  "synchronize": false,
+  "logging": false,
+  "entities": [
+    "/models/Categoria.js",
+    "/models/Subcategoria.js",
+    "/models/Produto.js",
+    "/models/Pedido.js",
+    "/models/Cliente.js",
+    "/models/Usuario.js",
+    "/models/Cupom.js",
+    "/models/Configuracoes.js"
+  ],
+  "migrations": ["../migrations"],
+  "subscribers": [],
+  "cli": {
+    "migrationsDir": "/migrations"
+  }
+}

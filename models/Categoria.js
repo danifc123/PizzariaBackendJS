@@ -1,26 +1,25 @@
 const { EntitySchema } = require("typeorm");
 
 module.exports = new EntitySchema({
-  name: "Category",
-  tableName: "categories",
+  name: "Categoria",
+  tableName: "categorias",
   columns: {
     id: {
       type: "int",
       primary: true,
       generated: true,
     },
-    name: {
+    nome: {
       type: "varchar",
-      length: 100,
       nullable: false,
     },
-    description: {
-      type: "text",
-      nullable: true,
-    },
-    isActive: {
-      type: "boolean",
-      default: true,
+  },
+  relations: {
+    subcategorias: {
+      type: "one-to-many",
+      target: "Subcategoria",
+      inverseSide: "categoria",
+      cascade: true,
     },
   },
 });

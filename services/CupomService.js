@@ -1,5 +1,5 @@
-const AppDataSource = require("../config/data-source");
-const Cupom = require("../entities/Cupom");
+const { AppDataSource } = require("../config/data-source");
+const Cupom = require("../models/Cupom");
 
 class CupomService {
   async getAll() {

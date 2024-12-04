@@ -1,9 +1,13 @@
 {
   "name": "pizzariabackendjs",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "typeorm": "typeorm",
+    "migration:generate": "typeorm migration:generate -d ./config/data-source.js --outputJs",
+    "migration:run": "typeorm migration:run -d ./config/data-source.js",
+    "migration:revert": "typeorm migration:revert -d ./config/data-source.js"
   },
   "keywords": [],
   "author": "",
@@ -16,7 +20,14 @@
     "pg-hstore": "^2.3.4",
     "reflect-metadata": "^0.2.2",
     "sequelize": "^6.37.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.20"
   },
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/plugin-proposal-decorators": "^7.25.9",
+    "@babel/preset-env": "^7.26.0"
+  }
 }

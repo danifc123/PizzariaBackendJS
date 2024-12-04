@@ -1,28 +1,44 @@
-const { Produto } = require("../models");
+const { getRepository } = require("typeorm");
+const Produto = require("../models/Produto");
 
 class ProdutoService {
+  // Buscar todos os produtos
   async getAllProdutos() {
-    return await Produto.findAll();
+    const produtoRepository = getRepository(Produto);
+    return await produtoRepository.find();
   }
 
+  // Buscar produto por ID
   async getProdutoById(id) {
-    return await Produto.findByPk(id);
+    const produtoRepository = getRepository(Produto);
+    const produto = await produtoRepository.findOne(id);
+    if (!produto) throw new Error("Produto não encontrado");
+    return produto;
   }
 
+  // Adicionar produto
   async addProduto(produtoData) {
-    return await Produto.create(produtoData);
+    const produtoRepository = getRepository(Produto);
+    const novoProduto = produtoRepository.create(produtoData);
+    return await produtoRepository.save(novoProduto);
   }
 
+  // Atualizar produto
   async updateProduto(id, produtoAtualizado) {
-    const produto = await Produto.findByPk(id);
+    const produtoRepository = getRepository(Produto);
+    const produto = await produtoRepository.findOne(id);
     if (!produto) throw new Error("Produto não encontrado");
-    return await produto.update(produtoAtualizado);
+
+    Object.assign(produto, produtoAtualizado);
+    return await produtoRepository.save(produto);
   }
 
+  // Deletar produto
   async deleteProduto(id) {
-    const produto = await Produto.findByPk(id);
+    const produtoRepository = getRepository(Produto);
+    const produto = await produtoRepository.findOne(id);
     if (!produto) throw new Error("Produto não encontrado");
-    return await produto.destroy();
+    return await produtoRepository.remove(produto);
   }
 }
 

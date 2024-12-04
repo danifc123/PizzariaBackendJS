@@ -1,22 +1,21 @@
-const express = require("express");
+const { AppDataSource } = require("../config/data-source");
 const Pedido = require("../models/Pedido");
-const router = express.Router();
 
-// GET: Buscar todos os pedidos
-router.get("/", async (req, res) => {
+const getAllPedidos = async (req, res) => {
   try {
-    const pedidos = await Pedido.findAll();
+    const pedidoRepository = AppDataSource.getRepository(Pedido);
+    const pedidos = await pedidoRepository.find();
     res.status(200).json(pedidos);
   } catch (error) {
     res.status(500).json({ error: "Erro ao buscar pedidos." });
   }
-});
+};
 
-// GET: Buscar pedido por ID
-router.get("/:id", async (req, res) => {
+const getPedidoById = async (req, res) => {
   const { id } = req.params;
   try {
-    const pedido = await Pedido.findByPk(id);
+    const pedidoRepository = AppDataSource.getRepository(Pedido);
+    const pedido = await pedidoRepository.findOneBy({ id });
     if (!pedido) {
       return res.status(404).json({ error: "Pedido não encontrado." });
     }
@@ -24,51 +23,62 @@ router.get("/:id", async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Erro ao buscar pedido." });
   }
-});
+};
 
-// POST: Criar novo pedido
-router.post("/", async (req, res) => {
-  const { clienteId, dataPedido, total } = req.body;
+const addPedido = async (req, res) => {
   try {
-    const novoPedido = await Pedido.create({ clienteId, dataPedido, total });
+    const pedidoRepository = AppDataSource.getRepository(Pedido);
+    const { clienteId, produtos, total, dataPedido } = req.body;
+
+    const novoPedido = pedidoRepository.create({
+      clienteId,
+      produtos,
+      total,
+      dataPedido,
+    });
+    await pedidoRepository.save(novoPedido);
     res.status(201).json(novoPedido);
   } catch (error) {
-    res.status(500).json({ error: "Erro ao criar pedido." });
+    res.status(500).json({ error: "Erro ao adicionar pedido." });
   }
-});
+};
 
-// PUT: Atualizar pedido
-router.put("/:id", async (req, res) => {
+const updatePedido = async (req, res) => {
   const { id } = req.params;
-  const { clienteId, dataPedido, total } = req.body;
+  const { clienteId, produtos, total, dataPedido } = req.body;
   try {
-    const pedido = await Pedido.findByPk(id);
+    const pedidoRepository = AppDataSource.getRepository(Pedido);
+    const pedido = await pedidoRepository.findOneBy({ id });
     if (!pedido) {
       return res.status(404).json({ error: "Pedido não encontrado." });
     }
-    pedido.clienteId = clienteId;
-    pedido.dataPedido = dataPedido;
-    pedido.total = total;
-    await pedido.save();
-    res.status(204).send();
+
+    pedidoRepository.merge(pedido, { clienteId, produtos, total, dataPedido });
+    await pedidoRepository.save(pedido);
+    res.status(200).json(pedido);
   } catch (error) {
     res.status(500).json({ error: "Erro ao atualizar pedido." });
   }
-});
+};
 
-// DELETE: Excluir pedido
-router.delete("/:id", async (req, res) => {
+const deletePedido = async (req, res) => {
   const { id } = req.params;
   try {
-    const pedido = await Pedido.findByPk(id);
-    if (!pedido) {
+    const pedidoRepository = AppDataSource.getRepository(Pedido);
+    const result = await pedidoRepository.delete({ id });
+    if (result.affected === 0) {
       return res.status(404).json({ error: "Pedido não encontrado." });
     }
-    await pedido.destroy();
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ error: "Erro ao excluir pedido." });
   }
-});
+};
 
-module.exports = router;
+module.exports = {
+  getAllPedidos,
+  getPedidoById,
+  addPedido,
+  updatePedido,
+  deletePedido,
+};
