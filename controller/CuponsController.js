@@ -66,11 +66,28 @@ const updateCupom = async (req, res) => {
 };
 
 const deleteCupom = async (req, res) => {
+  const { id } = req.params;
+  console.log("Tentando excluir cupom com ID:", id);
+
   try {
-    await CupomService.delete(req.params.id);
-    res.status(204).send();
+    const cupomRepository = AppDataSource.getRepository(CupomService);
+    const cupom = await cupomRepository.findOne({
+      where: { id: parseInt(id) },
+    });
+
+    if (!cupom) {
+      console.log("Cupom não encontrado:", id);
+      return res.status(404).json({ error: "Cupom não encontrado." });
+    }
+
+    await cupomRepository.remove(cupom);
+    console.log("Cupom excluído com sucesso:", id);
+    res.status(200).json({ message: "Cupom excluído com sucesso." });
   } catch (error) {
-    res.status(500).json({ error: "Erro ao deletar cupom." });
+    console.error("Erro ao excluir cupom:", error);
+    res
+      .status(500)
+      .json({ error: "Erro ao excluir cupom.", details: error.message });
   }
 };
 

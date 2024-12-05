@@ -111,15 +111,27 @@ const updatePedido = async (req, res) => {
 
 const deletePedido = async (req, res) => {
   const { id } = req.params;
+  console.log("Tentando excluir pedido com ID:", id);
+
   try {
     const pedidoRepository = AppDataSource.getRepository(Pedido);
-    const result = await pedidoRepository.delete({ id });
-    if (result.affected === 0) {
+    const pedido = await pedidoRepository.findOne({
+      where: { id: parseInt(id) },
+    });
+
+    if (!pedido) {
+      console.log("Pedido não encontrado:", id);
       return res.status(404).json({ error: "Pedido não encontrado." });
     }
-    res.status(204).send();
+
+    await pedidoRepository.remove(pedido);
+    console.log("Pedido excluído com sucesso:", id);
+    res.status(200).json({ message: "Pedido excluído com sucesso." });
   } catch (error) {
-    res.status(500).json({ error: "Erro ao excluir pedido." });
+    console.error("Erro ao excluir pedido:", error);
+    res
+      .status(500)
+      .json({ error: "Erro ao excluir pedido.", details: error.message });
   }
 };
 

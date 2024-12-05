@@ -78,11 +78,29 @@ const atualizarConfiguracao = async (req, res) => {
 };
 
 const excluirConfiguracao = async (req, res) => {
+  const { id } = req.params;
+  console.log("Tentando excluir configuração com ID:", id);
+
   try {
-    await ConfiguracaoService.removerConfiguracao(req.params.id);
-    res.status(204).send();
+    const configuracaoRepository =
+      AppDataSource.getRepository(ConfiguracaoService);
+    const configuracao = await configuracaoRepository.findOne({
+      where: { id: parseInt(id) },
+    });
+
+    if (!configuracao) {
+      console.log("Configuração não encontrada:", id);
+      return res.status(404).json({ error: "Configuração não encontrada." });
+    }
+
+    await configuracaoRepository.remove(configuracao);
+    console.log("Configuração excluída com sucesso:", id);
+    res.status(200).json({ message: "Configuração excluída com sucesso." });
   } catch (error) {
-    res.status(500).json({ error: "Erro ao deletar configuração." });
+    console.error("Erro ao excluir configuração:", error);
+    res
+      .status(500)
+      .json({ error: "Erro ao excluir configuração.", details: error.message });
   }
 };
 

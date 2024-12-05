@@ -79,14 +79,30 @@ const atualizarUsuario = async (req, res) => {
 
 // Deletar um usuário
 const excluirUsuario = async (req, res) => {
+  const { id } = req.params;
+  console.log("Tentando excluir usuário com ID:", id);
+
   try {
-    await UsuarioService.deleteUsuario(req.params.id);
-    res.status(204).send();
+    const usuarioRepository = AppDataSource.getRepository(UsuarioService);
+    const usuario = await usuarioRepository.findOne({
+      where: { id: parseInt(id) },
+    });
+
+    if (!usuario) {
+      console.log("Usuário não encontrado:", id);
+      return res.status(404).json({ error: "Usuário não encontrado." });
+    }
+
+    await usuarioRepository.remove(usuario);
+    console.log("Usuário excluído com sucesso:", id);
+    res.status(200).json({ message: "Usuário excluído com sucesso." });
   } catch (error) {
-    res.status(404).json({ error: "Usuário não encontrado." });
+    console.error("Erro ao excluir usuário:", error);
+    res
+      .status(500)
+      .json({ error: "Erro ao excluir usuário.", details: error.message });
   }
 };
-
 module.exports = {
   listarUsuarios,
   adicionarUsuario,

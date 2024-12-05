@@ -54,18 +54,28 @@ const updateCategory = async (req, res) => {
 };
 
 const deleteCategory = async (req, res) => {
+  const { id } = req.params;
+  console.log("Tentando excluir categoria com ID:", id);
+
   try {
     const categoryRepository = AppDataSource.getRepository(Category);
-    const { id } = req.params;
+    const categoria = await categoryRepository.findOne({
+      where: { id: parseInt(id) },
+    });
 
-    const result = await categoryRepository.delete({ id });
-    if (result.affected === 0) {
-      return res.status(404).json({ message: "Category not found" });
+    if (!categoria) {
+      console.log("Categoria não encontrada:", id);
+      return res.status(404).json({ error: "Categoria não encontrada." });
     }
 
-    res.status(204).send();
+    await categoryRepository.remove(categoria);
+    console.log("Categoria excluída com sucesso:", id);
+    res.status(200).json({ message: "Categoria excluída com sucesso." });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting category", error });
+    console.error("Erro ao excluir categoria:", error);
+    res
+      .status(500)
+      .json({ error: "Erro ao excluir categoria.", details: error.message });
   }
 };
 

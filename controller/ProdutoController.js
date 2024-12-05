@@ -91,15 +91,27 @@ const updateProduto = async (req, res) => {
 
 const deleteProduto = async (req, res) => {
   const { id } = req.params;
+  console.log("Tentando excluir produto com ID:", id);
+
   try {
     const produtoRepository = AppDataSource.getRepository(Produto);
-    const result = await produtoRepository.delete({ id });
-    if (result.affected === 0) {
+    const produto = await produtoRepository.findOne({
+      where: { id: parseInt(id) },
+    });
+
+    if (!produto) {
+      console.log("Produto não encontrado:", id);
       return res.status(404).json({ error: "Produto não encontrado." });
     }
-    res.status(204).send();
+
+    await produtoRepository.remove(produto);
+    console.log("Produto excluído com sucesso:", id);
+    res.status(200).json({ message: "Produto excluído com sucesso." });
   } catch (error) {
-    res.status(500).json({ error: "Erro ao excluir produto." });
+    console.error("Erro ao excluir produto:", error);
+    res
+      .status(500)
+      .json({ error: "Erro ao excluir produto.", details: error.message });
   }
 };
 

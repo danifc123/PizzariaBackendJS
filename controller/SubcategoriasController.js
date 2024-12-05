@@ -86,15 +86,27 @@ const updateSubcategoria = async (req, res) => {
 
 const deleteSubcategoria = async (req, res) => {
   const { id } = req.params;
+  console.log("Tentando excluir subcategoria com ID:", id);
+
   try {
     const subcategoriaRepository = AppDataSource.getRepository(Subcategoria);
-    const result = await subcategoriaRepository.delete({ id });
-    if (result.affected === 0) {
+    const subcategoria = await subcategoriaRepository.findOne({
+      where: { id: parseInt(id) },
+    });
+
+    if (!subcategoria) {
+      console.log("Subcategoria não encontrada:", id);
       return res.status(404).json({ error: "Subcategoria não encontrada." });
     }
-    res.status(204).send();
+
+    await subcategoriaRepository.remove(subcategoria);
+    console.log("Subcategoria excluída com sucesso:", id);
+    res.status(200).json({ message: "Subcategoria excluída com sucesso." });
   } catch (error) {
-    res.status(500).json({ error: "Erro ao deletar subcategoria." });
+    console.error("Erro ao excluir subcategoria:", error);
+    res
+      .status(500)
+      .json({ error: "Erro ao excluir subcategoria.", details: error.message });
   }
 };
 
