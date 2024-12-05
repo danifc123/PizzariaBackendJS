@@ -40,10 +40,27 @@ const addCupom = async (req, res) => {
 };
 
 const updateCupom = async (req, res) => {
+  const { id } = req.params;
+  const dadosAtualizados = req.body;
+
+  if (!id) {
+    return res.status(400).json({ error: "ID não fornecido." });
+  }
+
   try {
-    const cupom = await CupomService.update(req.params.id, req.body);
+    const cupomRepository = AppDataSource.getRepository(CupomService);
+    const cupom = await cupomRepository.findOne({ where: { id } });
+
+    if (!cupom) {
+      return res.status(404).json({ error: "Cupom não encontrado." });
+    }
+
+    cupomRepository.merge(cupom, dadosAtualizados);
+    await cupomRepository.save(cupom);
+
     res.status(200).json(cupom);
   } catch (error) {
+    console.error("Erro ao atualizar cupom:", error);
     res.status(500).json({ error: "Erro ao atualizar cupom." });
   }
 };

@@ -52,11 +52,28 @@ const buscarUsuarioPorId = async (req, res) => {
 
 // Atualizar um usuário
 const atualizarUsuario = async (req, res) => {
+  const { id } = req.params;
+  const dadosAtualizados = req.body;
+
+  if (!id) {
+    return res.status(400).json({ error: "ID não fornecido." });
+  }
+
   try {
-    await UsuarioService.updateUsuario(req.params.id, req.body);
-    res.status(204).send();
+    const usuarioRepository = AppDataSource.getRepository(UsuarioService);
+    const usuario = await usuarioRepository.findOne({ where: { id } });
+
+    if (!usuario) {
+      return res.status(404).json({ error: "Usuário não encontrado." });
+    }
+
+    usuarioRepository.merge(usuario, dadosAtualizados);
+    await usuarioRepository.save(usuario);
+
+    res.status(200).json(usuario);
   } catch (error) {
-    res.status(404).json({ error: "Usuário não encontrado." });
+    console.error("Erro ao atualizar usuário:", error);
+    res.status(500).json({ error: "Erro ao atualizar usuário." });
   }
 };
 

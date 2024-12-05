@@ -61,9 +61,15 @@ const addProduto = async (req, res) => {
 const updateProduto = async (req, res) => {
   const { id } = req.params;
   const { nome, preco, descricao, subcategoriaId } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ error: "ID não fornecido." });
+  }
+
   try {
     const produtoRepository = AppDataSource.getRepository(Produto);
-    const produto = await produtoRepository.findOneBy({ id });
+    const produto = await produtoRepository.findOne({ where: { id } });
+
     if (!produto) {
       return res.status(404).json({ error: "Produto não encontrado." });
     }
@@ -75,8 +81,10 @@ const updateProduto = async (req, res) => {
       subcategoriaId,
     });
     await produtoRepository.save(produto);
+
     res.status(200).json(produto);
   } catch (error) {
+    console.error("Erro ao atualizar produto:", error);
     res.status(500).json({ error: "Erro ao atualizar produto." });
   }
 };

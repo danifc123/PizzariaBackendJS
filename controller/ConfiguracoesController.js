@@ -49,10 +49,30 @@ const adicionarConfiguracao = async (req, res) => {
 };
 
 const atualizarConfiguracao = async (req, res) => {
+  const { id } = req.params;
+  const dadosAtualizados = req.body;
+
+  if (!id) {
+    return res.status(400).json({ error: "ID não fornecido." });
+  }
+
   try {
-    await ConfiguracaoService.atualizarConfiguracao(req.params.id, req.body);
-    res.status(204).send();
+    const configuracaoRepository =
+      AppDataSource.getRepository(ConfiguracaoService);
+    const configuracao = await configuracaoRepository.findOne({
+      where: { id },
+    });
+
+    if (!configuracao) {
+      return res.status(404).json({ error: "Configuração não encontrada." });
+    }
+
+    configuracaoRepository.merge(configuracao, dadosAtualizados);
+    await configuracaoRepository.save(configuracao);
+
+    res.status(200).json(configuracao);
   } catch (error) {
+    console.error("Erro ao atualizar configuração:", error);
     res.status(500).json({ error: "Erro ao atualizar configuração." });
   }
 };

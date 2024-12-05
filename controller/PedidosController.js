@@ -51,11 +51,9 @@ const addPedido = async (req, res) => {
 
     // Certifique-se de que todos os itens em 'produtos' são números válidos
     if (idsProdutos.some((id) => isNaN(id))) {
-      return res
-        .status(400)
-        .json({
-          error: "Todos os produtos devem ser identificados por IDs válidos.",
-        });
+      return res.status(400).json({
+        error: "Todos os produtos devem ser identificados por IDs válidos.",
+      });
     }
 
     // Buscando os produtos pelo ID
@@ -88,17 +86,25 @@ const addPedido = async (req, res) => {
 const updatePedido = async (req, res) => {
   const { id } = req.params;
   const { clienteId, produtos, total, dataPedido } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ error: "ID não fornecido." });
+  }
+
   try {
     const pedidoRepository = AppDataSource.getRepository(Pedido);
-    const pedido = await pedidoRepository.findOneBy({ id });
+    const pedido = await pedidoRepository.findOne({ where: { id } });
+
     if (!pedido) {
       return res.status(404).json({ error: "Pedido não encontrado." });
     }
 
     pedidoRepository.merge(pedido, { clienteId, produtos, total, dataPedido });
     await pedidoRepository.save(pedido);
+
     res.status(200).json(pedido);
   } catch (error) {
+    console.error("Erro ao atualizar pedido:", error);
     res.status(500).json({ error: "Erro ao atualizar pedido." });
   }
 };

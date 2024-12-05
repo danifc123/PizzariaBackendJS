@@ -59,17 +59,27 @@ const addSubcategoria = async (req, res) => {
 const updateSubcategoria = async (req, res) => {
   const { id } = req.params;
   const { nome, categoriaId } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ error: "ID não fornecido." });
+  }
+
   try {
     const subcategoriaRepository = AppDataSource.getRepository(Subcategoria);
-    const subcategoria = await subcategoriaRepository.findOneBy({ id });
+    const subcategoria = await subcategoriaRepository.findOne({
+      where: { id },
+    });
+
     if (!subcategoria) {
       return res.status(404).json({ error: "Subcategoria não encontrada." });
     }
 
     subcategoriaRepository.merge(subcategoria, { nome, categoriaId });
     await subcategoriaRepository.save(subcategoria);
+
     res.status(200).json(subcategoria);
   } catch (error) {
+    console.error("Erro ao atualizar subcategoria:", error);
     res.status(500).json({ error: "Erro ao atualizar subcategoria." });
   }
 };

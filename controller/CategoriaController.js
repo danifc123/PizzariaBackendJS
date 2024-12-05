@@ -28,14 +28,19 @@ const getAllCategories = async (req, res) => {
 };
 
 const updateCategory = async (req, res) => {
+  const { id } = req.params;
+  const { name, description, isActive } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ error: "ID não fornecido." });
+  }
+
   try {
     const categoryRepository = AppDataSource.getRepository(Category);
-    const { id } = req.params;
-    const { name, description, isActive } = req.body;
+    const category = await categoryRepository.findOne({ where: { id } });
 
-    const category = await categoryRepository.findOneBy({ id });
     if (!category) {
-      return res.status(404).json({ message: "Category not found" });
+      return res.status(404).json({ error: "Categoria não encontrada." });
     }
 
     categoryRepository.merge(category, { name, description, isActive });
@@ -43,7 +48,8 @@ const updateCategory = async (req, res) => {
 
     res.status(200).json(category);
   } catch (error) {
-    res.status(500).json({ message: "Error updating category", error });
+    console.error("Erro ao atualizar categoria:", error);
+    res.status(500).json({ error: "Erro ao atualizar categoria." });
   }
 };
 
