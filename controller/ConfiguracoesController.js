@@ -12,26 +12,38 @@ const listarConfiguracoes = async (req, res) => {
     res.status(500).json({ error: "Erro ao buscar configurações" });
   }
 };
-
 const buscarConfiguracaoPorId = async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ error: "ID não fornecido." });
+  }
   try {
-    const configuracao = await ConfiguracaoService.buscarPorNome(req.params.id);
+    const configuracoesRepository =
+      AppDataSource.getRepository(ConfiguracaoService);
+    const configuracao = await configuracoesRepository.findOne({
+      where: { id: parseInt(id) },
+    });
     if (!configuracao) {
       return res.status(404).json({ error: "Configuração não encontrada." });
     }
-    res.status(200).json(configuracoes);
+    res.status(200).json(configuracao);
   } catch (error) {
     res.status(500).json({ error: "Erro ao buscar configuração." });
   }
 };
-
 const adicionarConfiguracao = async (req, res) => {
+  const { nome, valor } = req.body;
   try {
-    const configuracao = await ConfiguracaoService.adicionarConfiguracao(
-      req.body
-    );
-    res.status(201).json(configuracao);
+    const configuracoesRepository =
+      AppDataSource.getRepository(ConfiguracaoService); // Certifique-se de usar o nome correto da entidade
+    const novaconfiguracao = configuracoesRepository.create({
+      nome,
+      valor,
+    });
+    await configuracoesRepository.save(novaconfiguracao);
+    res.status(201).json(novaconfiguracao);
   } catch (error) {
+    console.error("Erro ao adicionar configuração:", error); // Adicione log para depurar
     res.status(500).json({ error: "Erro ao adicionar configuração." });
   }
 };

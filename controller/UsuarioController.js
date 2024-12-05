@@ -12,11 +12,18 @@ const listarUsuarios = async (req, res) => {
   }
 };
 
-// Adicionar um novo usuário
 const adicionarUsuario = async (req, res) => {
+  const { nome, email, senha, regra } = req.body;
   try {
-    const usuario = await UsuarioService.addUsuario(req.body);
-    res.status(201).json(usuario);
+    const usuarioRepository = AppDataSource.getRepository(UsuarioService);
+    const novoUsuario = usuarioRepository.create({
+      nome,
+      email,
+      senha,
+      regra,
+    });
+    await usuarioRepository.save(novoUsuario);
+    res.status(201).json(novoUsuario);
   } catch (error) {
     res.status(500).json({ error: "Erro ao adicionar usuário." });
   }
@@ -24,9 +31,20 @@ const adicionarUsuario = async (req, res) => {
 
 // Buscar usuário por ID
 const buscarUsuarioPorId = async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ error: "ID não fornecido." });
+  }
+
   try {
-    const usuario = await UsuarioService.getUsuarioById(req.params.id);
-    res.status(200).json(usuarios);
+    const usuariosRepository = AppDataSource.getRepository(UsuarioService);
+    const usuario = await usuariosRepository.findOne({
+      where: { id: parseInt(id) },
+    });
+    if (!usuario) {
+      return res.status(404).json({ error: "Usuario não encontrado." });
+    }
+    res.status(200).json(usuario);
   } catch (error) {
     res.status(404).json({ error: "Usuário não encontrado." });
   }

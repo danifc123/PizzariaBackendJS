@@ -6,12 +6,12 @@ const Cupom = require("../models/Cupom");
 const Pedido = require("../models/Pedido");
 const Produto = require("../models/Produto");
 const Usuario = require("../models/Usuario");
-const Cliente = require("../models/Cliente")
+const Cliente = require("../models/Cliente");
 
 const AppDataSource = new DataSource({
   type: "postgres",
   host: "localhost",
-  port: 5432,
+  port: 5433,
   username: "postgres",
   password: "fariadocarmo123",
   database: "pizzariabackendjs",

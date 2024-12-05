@@ -1,5 +1,6 @@
 const { getRepository } = require("typeorm");
 const Subcategoria = require("../models/Subcategorias");
+const Categoria = require("../models/Categoria");
 
 class SubcategoriaService {
   // Buscar todas as subcategorias
@@ -18,8 +19,19 @@ class SubcategoriaService {
 
   // Adicionar nova subcategoria
   async add(subcategoriaData) {
+    const { nome, categoriaId } = subcategoriaData;
+    const categoriaRepository = getRepository(Categoria);
+
+    // Valida a categoria antes de criar a subcategoria
+    const categoria = await categoriaRepository.findOne(categoriaId);
+    if (!categoria) throw new Error("Categoria não encontrada");
+
     const subcategoriaRepository = getRepository(Subcategoria);
-    const novaSubcategoria = subcategoriaRepository.create(subcategoriaData);
+    const novaSubcategoria = subcategoriaRepository.create({
+      nome,
+      categoria, // Relaciona a categoria diretamente
+    });
+
     return await subcategoriaRepository.save(novaSubcategoria);
   }
 

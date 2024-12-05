@@ -1,6 +1,6 @@
 const AppDataSource = require("../config/data-source"); // Importar corretamente AppDataSource
 const Produto = require("../models/Produto");
-
+const Subcategoria = require("../models/Subcategorias");
 const getAllProdutos = async (req, res) => {
   try {
     const produtoRepository = AppDataSource.getRepository(Produto);
@@ -24,21 +24,36 @@ const getProdutoById = async (req, res) => {
     res.status(500).json({ error: "Erro ao buscar produto." });
   }
 };
-
 const addProduto = async (req, res) => {
+  const { nome, preco, descricao, subcategoriaId } = req.body;
+
   try {
     const produtoRepository = AppDataSource.getRepository(Produto);
-    const { nome, preco, descricao, subcategoriaId } = req.body;
+    const subcategoriaRepository = AppDataSource.getRepository(Subcategoria);
 
+    // Verifica se a subcategoria existe
+    const subcategoria = await subcategoriaRepository.findOneBy({
+      id: subcategoriaId,
+    });
+
+    if (!subcategoria) {
+      return res.status(404).json({ error: "Subcategoria não encontrada." });
+    }
+
+    // Cria o produto e associa a subcategoria
     const novoProduto = produtoRepository.create({
       nome,
       preco,
       descricao,
-      subcategoriaId,
+      subcategoria, // Relaciona diretamente com a entidade Subcategoria
     });
+
+    // Salva o produto
     await produtoRepository.save(novoProduto);
+
     res.status(201).json(novoProduto);
   } catch (error) {
+    console.error("Erro ao adicionar produto:", error); // Exibe detalhes no console
     res.status(500).json({ error: "Erro ao adicionar produto." });
   }
 };

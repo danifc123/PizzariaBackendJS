@@ -2,14 +2,14 @@ const Category = require("../models/Categoria");
 const AppDataSource = require("../config/data-source"); // Importar corretamente AppDataSource
 
 const createCategory = async (req, res) => {
+  const { nome } = req.body;
   try {
     const categoryRepository = AppDataSource.getRepository(Category);
-    const { name, description, isActive } = req.body;
-
-    const category = categoryRepository.create({ name, description, isActive });
-    await categoryRepository.save(category);
-
-    res.status(201).json(category);
+    const novaCategoria = categoryRepository.create({
+      nome,
+    });
+    await categoryRepository.save(novaCategoria);
+    res.status(201).json(novaCategoria);
   } catch (error) {
     res.status(500).json({ message: "Error creating category", error });
   }

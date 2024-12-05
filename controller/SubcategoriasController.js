@@ -1,5 +1,6 @@
 const AppDataSource = require("../config/data-source"); // Importar corretamente AppDataSource
 const Subcategoria = require("../models/Subcategorias");
+const Categoria = require("../models/Categoria"); // Corrija o caminho, se necessário
 
 const getAllSubcategorias = async (req, res) => {
   try {
@@ -24,19 +25,33 @@ const getSubcategoriaById = async (req, res) => {
     res.status(500).json({ error: "Erro ao buscar subcategoria." });
   }
 };
-
 const addSubcategoria = async (req, res) => {
-  try {
-    const subcategoriaRepository = AppDataSource.getRepository(Subcategoria);
-    const { nome, categoriaId } = req.body;
+  const { nome, categoriaId } = req.body;
 
+  if (!nome || !categoriaId) {
+    return res
+      .status(400)
+      .json({ error: "Os campos 'nome' e 'categoriaId' são obrigatórios." });
+  }
+
+  try {
+    const categoriaRepository = AppDataSource.getRepository(Categoria);
+    const categoria = await categoriaRepository.findOneBy({ id: categoriaId });
+
+    if (!categoria) {
+      return res.status(404).json({ error: "Categoria não encontrada." });
+    }
+
+    const subcategoriaRepository = AppDataSource.getRepository(Subcategoria);
     const novaSubcategoria = subcategoriaRepository.create({
       nome,
-      categoriaId,
+      categoria, // Relacione a categoria diretamente
     });
+
     await subcategoriaRepository.save(novaSubcategoria);
     res.status(201).json(novaSubcategoria);
   } catch (error) {
+    console.error("Erro ao adicionar subcategoria:", error);
     res.status(500).json({ error: "Erro ao adicionar subcategoria." });
   }
 };
