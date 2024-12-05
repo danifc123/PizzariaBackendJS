@@ -1,5 +1,5 @@
 const { getRepository } = require("typeorm");
-const Configuracao = require("../entities/Configuracao");
+const Configuracao = require("../models/Configuracoes");
 
 class ConfiguracaoService {
   async listarConfiguracoes() {
